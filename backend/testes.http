@@ -1,0 +1,36 @@
+
+# @name login
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "usuario": "ana",
+  "senha": "123456"
+}
+
+### 3) Ver o perfil de quem está logado
+GET http://localhost:3000/perfil
+Authorization: Bearer {{login.response.body.token}}
+
+### 4) Ver o perfil SEM token (deve dar 401)
+GET http://localhost:3000/perfil
+
+### 5) Ver o feed (10 posts aleatórios, que mudam a cada envio)
+GET http://localhost:3000/feed
+Authorization: Bearer {{login.response.body.token}}
+
+### 6) Publicar uma foto (envia o arquivo foto-01.svg da pasta uploads)
+POST http://localhost:3000/posts
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: multipart/form-data; boundary=fronteira
+
+--fronteira
+Content-Disposition: form-data; name="legenda"
+
+Foto enviada pelo arquivo de testes
+--fronteira
+Content-Disposition: form-data; name="imagem"; filename="foto-01.svg"
+Content-Type: image/svg+xml
+
+< ./uploads/foto-01.svg
+--fronteira--
