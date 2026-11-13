@@ -25,12 +25,34 @@ Authorization: Bearer {{login.response.body.token}}
 Content-Type: multipart/form-data; boundary=fronteira
 
 --fronteira
-Content-Disposition: form-data; name="legenda"
+Content-Disposition: form-data; name="Meu primeiro post"
 
 Foto enviada pelo arquivo de testes
 --fronteira
-Content-Disposition: form-data; name="imagem"; filename="foto-01.svg"
+Content-Disposition: form-data; name="imagem"; filename="foto-05.svg"
 Content-Type: image/svg+xml
 
 < ./uploads/foto-01.svg
 --fronteira--
+
+### 7) Mudar o nome e a bio (sem trocar a foto)
+PATCH http://localhost:3000/perfil
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: multipart/form-data; boundary=fronteira
+
+--fronteira
+Content-Disposition: form-data; name="nome"
+
+Ana Souza
+--fronteira
+Content-Disposition: form-data; name="bio"
+
+Montanhas, trilhas e pôr do sol.
+--fronteira
+Content-Disposition: form-data; name="foto"; filename="perfil-bruno.svg"
+Content-Type: image/svg+xml
+
+< ./uploads/perfil-bruno.svg
+--fronteira--
+
+

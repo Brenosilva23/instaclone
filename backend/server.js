@@ -64,6 +64,19 @@ app.post('/login', (req, res) => {
     res.json({ token: token })
 })
 
+app.get('/feed', exigirLogin, (req, res) => {
+    const posts = banco
+        .prepare(
+            `SELECT posts.id, posts.imagem, posts.legenda,
+             usuarios.usuario AS autor, usuarios.foto AS fotoAutor
+             FROM posts
+             JOIN usuarios ON usuarios.id = posts.usuario_id
+             ORDER BY RANDOM()
+             LIMIT 10`,
+        ).all()
+    res.json(posts)
+})
+
 app.get('/perfil', exigirLogin, (req, res) => {
     const pessoa = buscarPessoa(req.usuarioId)
     pessoa.posts = banco
@@ -87,18 +100,23 @@ app.post('/posts', exigirLogin, upload.single('imagem'), (req, res) => {
     res.status(201).json(novo)
 })
 
+app.patch('/perfil', exigirLogin, upload.single('foto'), (req, res) => {
+    const nome = (req.body.nome || '').trim()
+    const bio = (req.body.bio || '').trim()
 
-app.get('/feed', exigirLogin, (req, res) => {
-    const posts = banco
-        .prepare(
-            `SELECT posts.id, posts.imagem, posts.legenda,
-             usuarios.usuario AS autor, usuarios.foto AS fotoAutor
-             FROM posts
-             JOIN usuarios ON usuarios.id = posts.usuario_id
-             ORDER BY RANDOM()
-             LIMIT 10`,
-        ).all()
-    res.json(posts)
+    if (nome === '') {
+        return res.status(400).json({ erro: 'O nome não pode ficar vazio.' })
+    }
+    banco
+        .prepare('UPDATE usuarios SET nome = ?, bio = ? WHERE id = ?')
+        .run(nome, bio, req.usuarioId)
+    if (req.file) {
+        banco
+            .prepare('UPDATE usuarios SET foto = ? WHERE id = ?')
+            .run(req.file.filename, req.usuarioId)
+    }
+
+    res.json(buscarPessoa(req.usuarioId))
 })
 
 app.listen(PORTA, () => {
