@@ -100,16 +100,29 @@ app.post('/posts', exigirLogin, upload.single('imagem'), (req, res) => {
     res.status(201).json(novo)
 })
 
+app.delete('/posts/:id', exigirLogin, (req, res) => {
+    const resultado = banco
+        .prepare('DELETE FROM posts WHERE id = ? AND usuario_id = ?')
+        .run(req.params.id, req.usuarioId)
+
+    if (resultado.changes === 0) {
+        return res.status(404).json({ erro: 'Foto não encontrada ou sem permissão.' })
+    }
+
+    res.status(200).json({ mensagem: 'Foto apagada com sucesso!' })
+})
+
 app.patch('/perfil', exigirLogin, upload.single('foto'), (req, res) => {
     const nome = (req.body.nome || '').trim()
     const bio = (req.body.bio || '').trim()
+    const usuario = (req.body.usuario || '').trim()
 
     if (nome === '') {
         return res.status(400).json({ erro: 'O nome não pode ficar vazio.' })
     }
     banco
-        .prepare('UPDATE usuarios SET nome = ?, bio = ? WHERE id = ?')
-        .run(nome, bio, req.usuarioId)
+        .prepare('UPDATE usuarios SET nome = ?, bio = ?, usuario = ? WHERE id = ?')
+        .run(nome, bio, usuario, req.usuarioId)
     if (req.file) {
         banco
             .prepare('UPDATE usuarios SET foto = ? WHERE id = ?')
@@ -121,4 +134,4 @@ app.patch('/perfil', exigirLogin, upload.single('foto'), (req, res) => {
 
 app.listen(PORTA, () => {
     console.log(`Servidor rodando em http://localhost:${PORTA}`)
-}) 
+})

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
-import { ImagePlus, Images, Upload, TriangleAlert } from 'lucide-react'
+import { ImagePlus, Images, Upload, Trash2 } from 'lucide-react'
 import { chamarApi, urlFoto } from '../api.js'
 import Avatar from '../components/Avatar.jsx'
+import Erro from '../components/Erro.jsx'
+import Galeria from '../components/Galeria.jsx'
 
 function Perfil() {
   const [pessoa, setPessoa] = useState(null) // começa vazio, até o servidor responder
@@ -34,14 +36,21 @@ function Perfil() {
     setEnviando(false)
   }
 
+  async function apagar(id) {
+    try {
+      await chamarApi(`/posts/${id}`, 'DELETE')
+      carregarPerfil()
+    } catch (problema) {
+      setErro(problema.message)
+    }
+  }
+
 
   return (
     <>
-      {erro && (
-        <div className="alert theme-danger" role="alert">
-          <TriangleAlert size={18} /> {erro}
-        </div>
-      )}
+
+    <Erro mensagem={erro} />
+
       {pessoa && (
         <>
           <section className="d-flex align-items-center gap-6 mb-7">
@@ -80,15 +89,8 @@ function Perfil() {
               </div>
             </article>
           ) : (
-            <div className="d-grid grid-cols-3 gap-1">
-              {pessoa.posts.map((post) => (
-                <img
-                  key={post.id}
-                  className="w-100 ratio-1x1 object-fit-cover"
-                  src={urlFoto(post.imagem)}
-                  alt={post.legenda}
-                />
-              ))}
+            <div >
+                <Galeria posts={pessoa.posts} apagar={apagar} />
             </div>
           )}
         </>
@@ -97,5 +99,5 @@ function Perfil() {
   )
 
 }
-
+ 
 export default Perfil

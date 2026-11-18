@@ -7,6 +7,7 @@ function Configuracoes() {
   const [foto, setFoto] = useState('sem-foto.svg')
   const [nome, setNome] = useState('')
   const [bio, setBio] = useState('')
+  const [usuario, setUsuario] = useState('')
   const [mensagem, setMensagem] = useState('')
   const [erro, setErro] = useState('')
   async function carregarPerfil() {
@@ -15,6 +16,7 @@ function Configuracoes() {
       setFoto(dados.foto)
       setNome(dados.nome)
       setBio(dados.bio)
+      setUsuario(dados.usuario)
     } catch (problema) {
       setErro(problema.message)
     }
@@ -29,10 +31,9 @@ function Configuracoes() {
     setMensagem('')
     setErro('')
     try {
-      // Os campos têm name="nome", name="bio" e name="foto": o FormData leva todos
       const dados = await chamarApi('/perfil', 'PATCH', new FormData(formulario))
-      setFoto(dados.foto) // mostra a foto nova, se a pessoa trocou
-      formulario.foto.value = '' // limpa o campo da foto: ela já foi enviada
+      setFoto(dados.foto) 
+      formulario.foto.value = ''
       setMensagem('Perfil atualizado com sucesso!')
     } catch (problema) {
       setErro(problema.message)
@@ -53,6 +54,18 @@ function Configuracoes() {
                 <input className="form-control" type="file" name="foto" accept="image/*" />
               </label>
             </div>
+
+            <label className="form-field">
+              <span className="form-label">Usuario</span>
+              <input
+                className="form-control"
+                type="text"
+                name="usuario"
+                value={usuario}
+                onChange={(evento) => setUsuario(evento.target.value)}
+              />
+            </label>
+
             <label className="form-field">
               <span className="form-label">Nome</span>
               <input
@@ -63,6 +76,7 @@ function Configuracoes() {
                 onChange={(evento) => setNome(evento.target.value)}
               />
             </label>
+
             <label className="form-field">
               <span className="form-label">Bio</span>
               <textarea
@@ -73,6 +87,7 @@ function Configuracoes() {
                 onChange={(evento) => setBio(evento.target.value)}
               />
             </label>
+
             {erro && (
               <div className="alert theme-danger" role="alert">
                 <TriangleAlert size={18} /> {erro}
